@@ -1,6 +1,7 @@
 using UnityEngine;
+using Photon.Pun;
 
-public class PlayerController : MonoBehaviour
+public class PlayerController : MonoBehaviourPun
 {
     public float moveSpeed = 5f;
     public float jumpForce = 10f;
@@ -15,10 +16,20 @@ public class PlayerController : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         anim = GetComponent<Animator>();
         rb.useGravity = false; // Disable built-in gravity
+
+        if (!photonView.IsMine)
+        {
+            enabled = false; // Disable script if this is not the local player
+        }
     }
 
     void Update()
     {
+        if (!photonView.IsMine)
+        {
+            return;
+        }
+
         // Horizontal movement
         float moveHorizontal = Input.GetAxis("Horizontal");
         Vector3 movement = new Vector3(moveHorizontal, 0.0f, 0.0f);
@@ -33,6 +44,9 @@ public class PlayerController : MonoBehaviour
             rb.velocity = new Vector3(rb.velocity.x, jumpForce, 0.0f);
             anim.SetTrigger("isJumping");
             isGrounded = false;
+
+            // Broadcast jump event to all clients
+            photonView.RPC("Jump", RpcTarget.All);
         }
 
         // Rotate player based on movement direction
@@ -50,6 +64,12 @@ public class PlayerController : MonoBehaviour
         {
             anim.SetBool("isRunning", false);
         }
+    }
+
+    [PunRPC]
+    void Jump()
+    {
+        anim.SetTrigger("isJumping");
     }
 
     void OnCollisionEnter(Collision collision)
