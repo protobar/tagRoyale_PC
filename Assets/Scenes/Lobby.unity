@@ -917,7 +917,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 1396948324}
   m_Direction: 2
   m_Value: 0
-  m_Size: 0.9998709
+  m_Size: 0.99994165
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -2135,7 +2135,7 @@ MonoBehaviour:
   lobbyPanel: {fileID: 346096778}
   roomPanel: {fileID: 77389116}
   roomName: {fileID: 433901068}
-  maxPlayers: 2
+  maxPlayers: 4
   timeBetweenUpdates: 1.5
   roomItemPrefab: {fileID: 7545564622009152091, guid: c82372548358362478c7fe5e4db8243e, type: 3}
   contentObject: {fileID: 1716580786}
@@ -2292,7 +2292,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0.00009849973}
+  m_AnchoredPosition: {x: 0, y: 0.00006942572}
   m_SizeDelta: {x: 737, y: 300}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1716580787
