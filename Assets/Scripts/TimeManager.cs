@@ -9,6 +9,7 @@ public class TimeManager : MonoBehaviourPunCallbacks, IPunObservable
     private float remainingTime; // Remaining game time
 
     public TMP_Text timeText; // Reference to the TextMeshProUGUI component
+    public TMP_Text pingText; 
 
     void Start()
     {
@@ -19,6 +20,15 @@ public class TimeManager : MonoBehaviourPunCallbacks, IPunObservable
         {
             // Start the countdown timer on the master client
             startTime = (float)PhotonNetwork.Time;
+        }
+
+        if (PhotonNetwork.IsConnected)
+        {
+            // Get the current ping value from Photon
+            int ping = PhotonNetwork.GetPing();
+
+            // Display the ping value on the TextMeshPro object
+            pingText.text = "Ping: " + ping.ToString() + "ms";
         }
     }
 
