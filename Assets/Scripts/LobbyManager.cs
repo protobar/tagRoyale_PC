@@ -10,6 +10,8 @@ public class LobbyManager : MonoBehaviourPunCallbacks
     public TMP_InputField roomInputField;
     public GameObject lobbyPanel;
     public GameObject roomPanel;
+    public GameObject createRoomPanel;
+    public GameObject browseRoom;
     public TMP_Text roomName;
     public int maxPlayers = 2;
 
@@ -26,17 +28,40 @@ public class LobbyManager : MonoBehaviourPunCallbacks
     public PlayerItem playerItemPrefab;
     public Transform playerItemParent;
 
+    public TMP_Text[] nicknameTexts;
+
     public GameObject playBtn;
     void Start()
     {
         PhotonNetwork.JoinLobby();
+        // Ensure the nickname is set correctly at the start
+        UpdateNicknameTexts(PhotonNetwork.NickName);
     }
+
+    /*private void OnEnable()
+    {
+        // Register for any potential nickname changes
+        PhotonNetwork.NickName = PhotonNetwork.NickName; // Initial set
+        UpdateNicknameTexts(PhotonNetwork.NickName);
+    }*/
 
     public void OnClickCreate()
     {
         if(roomInputField.text.Length >= 1)
         {
             PhotonNetwork.CreateRoom(roomInputField.text, new RoomOptions() { MaxPlayers = maxPlayers, BroadcastPropsChangeToAll = true });
+            createRoomPanel.SetActive(false);
+        }
+    }
+    public void UpdateNicknameTexts(string nickname)
+    {
+        // Update all TMP_Text elements with the provided nickname
+        foreach (TMP_Text nicknameText in nicknameTexts)
+        {
+            if (nicknameText != null)
+            {
+                nicknameText.text = nickname;
+            }
         }
     }
     public override void OnJoinedRoom()
