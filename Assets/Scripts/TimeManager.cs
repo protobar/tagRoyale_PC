@@ -1,7 +1,6 @@
 using UnityEngine;
 using TMPro;
 using Photon.Pun;
-using Photon.Realtime;
 using System.Collections;
 using UnityEngine.SceneManagement;
 
@@ -12,6 +11,7 @@ public class TimeManager : MonoBehaviourPunCallbacks, IPunObservable
     private float remainingTime; // Remaining game time
 
     public GameObject gameOverPanel;
+
     public TMP_Text timeText; // Reference to the TextMeshProUGUI component
     public TMP_Text pingText;
     public TMP_Text loserText; // Reference to the TMP_Text to display the loser
@@ -52,8 +52,10 @@ public class TimeManager : MonoBehaviourPunCallbacks, IPunObservable
         // Check for game end condition
         if (remainingTime <= 0f)
         {
+            Debug.Log("Time is up " + remainingTime);
             // Call GameOver RPC
             photonView.RPC("GameOver", RpcTarget.AllBuffered);
+            // Stop the countdown timer
             return;
         }
 
@@ -74,6 +76,7 @@ public class TimeManager : MonoBehaviourPunCallbacks, IPunObservable
     [PunRPC]
     void GameOver()
     {
+        Debug.Log("Gameover function called");
         if (gameIsOver)
         {
             return;
@@ -85,6 +88,8 @@ public class TimeManager : MonoBehaviourPunCallbacks, IPunObservable
 
     IEnumerator HandleGameOver()
     {
+        Debug.Log("Coroutine Started");
+
         // Disable PlayerController script on all players
         GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
         foreach (GameObject player in players)
@@ -115,19 +120,7 @@ public class TimeManager : MonoBehaviourPunCallbacks, IPunObservable
     {
         gameOverPanel.SetActive(true);
         loserName = loser;
-        loserText.text = loserName;
-    }
-
-    public void LeaveRoomAndGoToLobby()
-    {
-        // Leave the current room
-        PhotonNetwork.LeaveRoom();
-    }
-
-    public override void OnLeftRoom()
-    {
-        // Load the lobby scene after leaving the room
-        SceneManager.LoadScene(0);
+        loserText.text = loserName.ToString();
     }
 
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
@@ -144,5 +137,17 @@ public class TimeManager : MonoBehaviourPunCallbacks, IPunObservable
             startTime = (float)stream.ReceiveNext();
             loserName = (string)stream.ReceiveNext();
         }
+    }
+
+    public void LeaveRoomAndGoToLobby()
+    {
+        // Leave the current room
+        PhotonNetwork.LeaveRoom();
+    }
+
+    public override void OnLeftRoom()
+    {
+        // Load the lobby scene after leaving the room
+        SceneManager.LoadScene(0);
     }
 }
