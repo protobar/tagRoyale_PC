@@ -514,7 +514,7 @@ GameObject:
   - component: {fileID: -6137113841294557769}
   m_Layer: 0
   m_Name: Doctor_Male_Young
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -545,7 +545,7 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3986612457355121213}
   serializedVersion: 4
-  m_Mass: 1
+  m_Mass: 5
   m_Drag: 0
   m_AngularDrag: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
@@ -602,6 +602,8 @@ MonoBehaviour:
   moveSpeed: 8
   jumpForce: 15
   gravity: 30
+  tagSphere: {fileID: 7700852231191544606}
+  touchbackDuration: 2
 --- !u!95 &3966189889577736768
 Animator:
   serializedVersion: 5
@@ -663,13 +665,13 @@ MonoBehaviour:
   ShowParameterInspector: 1
   m_SynchronizeParameters:
   - Type: 4
-    SynchronizeType: 2
+    SynchronizeType: 1
     Name: isRunning
   - Type: 9
-    SynchronizeType: 2
+    SynchronizeType: 1
     Name: isJumping
   m_SynchronizeLayers:
-  - SynchronizeType: 0
+  - SynchronizeType: 1
     LayerIndex: 0
 --- !u!114 &-6137113841294557769
 MonoBehaviour:
@@ -1159,8 +1161,8 @@ GameObject:
   - component: {fileID: 8824793598985023974}
   - component: {fileID: 3733851016098965400}
   m_Layer: 0
-  m_Name: Tag
-  m_TagString: Untagged
+  m_Name: TagSphere
+  m_TagString: TagSphere
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

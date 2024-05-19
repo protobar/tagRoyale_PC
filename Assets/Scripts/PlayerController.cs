@@ -10,6 +10,12 @@ public class PlayerController : MonoBehaviourPun
     private Rigidbody rb;
     private Animator anim;
     private bool isGrounded;
+    private bool isTagged;
+
+    public GameObject tagSphere;
+
+    private float touchbackCountdown;
+    [SerializeField] private float touchbackDuration;
 
     void Start()
     {
@@ -25,7 +31,7 @@ public class PlayerController : MonoBehaviourPun
 
     void Update()
     {
-        if (!photonView.IsMine)
+        if (!photonView.IsMine || gameObject == null)
         {
             return;
         }
@@ -64,6 +70,12 @@ public class PlayerController : MonoBehaviourPun
         {
             anim.SetBool("isRunning", false);
         }
+
+        // Touch back timers
+        if (touchbackCountdown > 0)
+        {
+            touchbackCountdown -= Time.deltaTime;
+        }
     }
 
     [PunRPC]
@@ -74,6 +86,20 @@ public class PlayerController : MonoBehaviourPun
 
     void OnCollisionEnter(Collision collision)
     {
+        var otherPlayer = collision.collider.GetComponent<PlayerController>();
+
+        if (otherPlayer != null)
+        {
+            if (isTagged && touchbackCountdown <= 0f)
+            {
+                // Untag ourself
+                photonView.RPC("OnUnTagged", RpcTarget.AllBuffered);
+
+                // Tag the collided player
+                otherPlayer.photonView.RPC("OnTagged", RpcTarget.AllBuffered);
+            }
+        }
+
         // Check if player is grounded
         if (collision.gameObject.CompareTag("Ground"))
         {
@@ -88,5 +114,33 @@ public class PlayerController : MonoBehaviourPun
         {
             isGrounded = false;
         }
+    }
+
+    [PunRPC]
+    public void OnTagged()
+    {
+        // Flag as tagged
+        isTagged = true;
+
+        // Start the touchback countdown
+        touchbackCountdown = touchbackDuration;
+
+        // Turn on the sphere tag Game object
+        tagSphere.SetActive(true);
+    }
+
+    [PunRPC]
+    public void OnUnTagged()
+    {
+        // Flag as untagged
+        isTagged = false;
+
+        // Turn off the sphere tag Game object
+        tagSphere.SetActive(false);
+    }
+
+    public bool IsTagged()
+    {
+        return isTagged;
     }
 }

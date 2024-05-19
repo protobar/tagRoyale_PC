@@ -22,6 +22,16 @@ public class PlayerSpawner : MonoBehaviour
 
         // Instantiate the player prefab at the selected spawn point
         GameObject playerToSpawn = playerPrefabs[(int)PhotonNetwork.LocalPlayer.CustomProperties["playerAvatar"]];
-        PhotonNetwork.Instantiate(playerToSpawn.name, spawnPoint.position, Quaternion.identity);
+        var newPlayer = PhotonNetwork.Instantiate(playerToSpawn.name, spawnPoint.position, Quaternion.identity);
+
+        if(PhotonNetwork.IsMasterClient)
+        {
+            //Start as tagged
+            newPlayer.GetComponent<PlayerController>().photonView.RPC("OnTagged", RpcTarget.AllBuffered);
+        }
+        else
+        {
+            newPlayer.GetComponent<PlayerController>().photonView.RPC("OnUnTagged", RpcTarget.AllBuffered);
+        }
     }
 }
