@@ -82,7 +82,7 @@ public class TimeManager : MonoBehaviourPunCallbacks, IPunObservable
             return;
         }
 
-        gameIsOver = true;
+        //gameIsOver = true;
         StartCoroutine(HandleGameOver());
     }
 
