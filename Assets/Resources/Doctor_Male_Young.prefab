@@ -611,6 +611,7 @@ MonoBehaviour:
   boostCooldown: 5
   tagSphere: {fileID: 7700852231191544606}
   boostSlider: {fileID: 0}
+  playerNameText: {fileID: 0}
   touchbackDuration: 2
 --- !u!95 &3966189889577736768
 Animator:
