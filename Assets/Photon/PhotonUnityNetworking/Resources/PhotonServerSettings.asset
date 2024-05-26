@@ -46,6 +46,9 @@ MonoBehaviour:
   - OnUnTagged
   - GameOver
   - UpdateLoserText
+  - ReceiveStartTime
+  - RequestStartTime
+  - SetStartTime
   DisableAutoOpenWizard: 1
   ShowSettings: 0
   DevRegionSetOnce: 1

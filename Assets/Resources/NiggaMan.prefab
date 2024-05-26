@@ -533,8 +533,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 8
-  jumpForce: 15
+  jumpForce: 18
   gravity: 30
+  respawnPosition: {x: 0, y: 10, z: 0}
   tagSphere: {fileID: 9204854397306659531}
   touchbackDuration: 2
 --- !u!95 &7895250966946652980
@@ -1435,7 +1436,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: 9f1a74da54a818245a362530c86bc870, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

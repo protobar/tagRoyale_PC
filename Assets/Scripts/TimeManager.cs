@@ -28,6 +28,7 @@ public class TimeManager : MonoBehaviourPunCallbacks, IPunObservable
         {
             // Start the countdown timer on the master client
             startTime = (float)PhotonNetwork.Time;
+            photonView.RPC("SetStartTime", RpcTarget.OthersBuffered, startTime);
         }
     }
 
@@ -82,7 +83,7 @@ public class TimeManager : MonoBehaviourPunCallbacks, IPunObservable
             return;
         }
 
-        //gameIsOver = true;
+        gameIsOver = true;
         StartCoroutine(HandleGameOver());
     }
 
@@ -121,6 +122,12 @@ public class TimeManager : MonoBehaviourPunCallbacks, IPunObservable
         gameOverPanel.SetActive(true);
         loserName = loser;
         loserText.text = loserName.ToString();
+    }
+
+    [PunRPC]
+    void SetStartTime(float masterStartTime)
+    {
+        startTime = masterStartTime;
     }
 
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)

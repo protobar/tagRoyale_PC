@@ -6,6 +6,7 @@ public class PlayerController : MonoBehaviourPun
     public float moveSpeed = 5f;
     public float jumpForce = 10f;
     public float gravity = 20f; // Custom gravity value
+    public Vector3 respawnPosition = new Vector3(0, 10, 0); // Respawn position at y=10
 
     private Rigidbody rb;
     private Animator anim;
@@ -36,18 +37,25 @@ public class PlayerController : MonoBehaviourPun
             return;
         }
 
-        // Horizontal movement
+        // Horizontal and vertical movement
         float moveHorizontal = Input.GetAxis("Horizontal");
-        Vector3 movement = new Vector3(moveHorizontal, 0.0f, 0.0f);
-        rb.velocity = new Vector3(movement.x * moveSpeed, rb.velocity.y, 0.0f);
+        float moveVertical = Input.GetAxis("Vertical");
+        Vector3 movement = new Vector3(moveHorizontal, 0.0f, moveVertical);
+        rb.velocity = new Vector3(movement.x * moveSpeed, rb.velocity.y, movement.z * moveSpeed);
 
         // Apply gravity manually
         rb.velocity += Vector3.down * gravity * Time.deltaTime;
 
+        // Check if the player falls below y=-10
+        if (transform.position.y < -10f)
+        {
+            RespawnPlayer();
+        }
+
         // Jumping
         if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
         {
-            rb.velocity = new Vector3(rb.velocity.x, jumpForce, 0.0f);
+            rb.velocity = new Vector3(rb.velocity.x, jumpForce, rb.velocity.z);
             anim.SetTrigger("isJumping");
             isGrounded = false;
 
@@ -56,15 +64,10 @@ public class PlayerController : MonoBehaviourPun
         }
 
         // Rotate player based on movement direction
-        if (moveHorizontal < 0) // Moving left
+        if (movement.magnitude > 0)
         {
             anim.SetBool("isRunning", true);
-            transform.rotation = Quaternion.Euler(0, -90, 0); // Rotate left
-        }
-        else if (moveHorizontal > 0) // Moving right
-        {
-            anim.SetBool("isRunning", true);
-            transform.rotation = Quaternion.Euler(0, -270, 0); // Rotate right
+            transform.rotation = Quaternion.LookRotation(movement); // Rotate to face movement direction
         }
         else
         {
@@ -142,5 +145,12 @@ public class PlayerController : MonoBehaviourPun
     public bool IsTagged()
     {
         return isTagged;
+    }
+
+    void RespawnPlayer()
+    {
+        // Reset position to respawnPosition and fall from a higher position
+        transform.position = respawnPosition;
+        rb.velocity = new Vector3(0, -jumpForce, 0); // Fall from a higher position
     }
 }

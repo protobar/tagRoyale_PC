@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "752002045655",
+    "project_id": "tagroyale-70a94",
+    "storage_bucket": "tagroyale-70a94.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:752002045655:android:1d8a1b8f31896b07cd8292",
+        "android_client_info": {
+          "package_name": "com.DefaultCompany.TagRoyale"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCOH1LrBgOe2PJeSNg1ppcQ1toxMD0-na0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
