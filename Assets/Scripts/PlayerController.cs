@@ -42,7 +42,7 @@ public class PlayerController : MonoBehaviourPun
     private float touchbackCountdown;
     [SerializeField] private float touchbackDuration;
 
-    private bool cursorLocked = true;
+    private CursorManager cursorManager;
 
     void Start()
     {
@@ -50,6 +50,8 @@ public class PlayerController : MonoBehaviourPun
         anim = GetComponent<Animator>();
         audioSource = GetComponent<AudioSource>();
         rb.useGravity = false;
+
+        cursorManager = FindObjectOfType<CursorManager>();
 
         currentMoveSpeed = moveSpeed;
 
@@ -81,7 +83,10 @@ public class PlayerController : MonoBehaviourPun
                 playerNameText.text = PhotonNetwork.NickName;
             }
 
-            LockCursor();
+            if (cursorManager != null)
+            {
+                cursorManager.LockCursor();
+            }
         }
     }
 
@@ -90,11 +95,6 @@ public class PlayerController : MonoBehaviourPun
         if (!photonView.IsMine || gameObject == null)
         {
             return;
-        }
-
-        if (Input.GetKeyDown(KeyCode.Escape))
-        {
-            ToggleCursorState();
         }
 
         if (Input.GetKeyDown(KeyCode.LeftShift) && !isBoosting && boostCooldownTimer <= 0)
@@ -272,30 +272,5 @@ public class PlayerController : MonoBehaviourPun
         {
             audioSource.PlayOneShot(footstepSound);
         }
-    }
-
-    void ToggleCursorState()
-    {
-        cursorLocked = !cursorLocked;
-        if (cursorLocked)
-        {
-            LockCursor();
-        }
-        else
-        {
-            UnlockCursor();
-        }
-    }
-
-    void LockCursor()
-    {
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
-    }
-
-    void UnlockCursor()
-    {
-        Cursor.lockState = CursorLockMode.None;
-        Cursor.visible = true;
     }
 }
