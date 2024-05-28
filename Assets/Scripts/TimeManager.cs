@@ -12,33 +12,29 @@ public class TimeManager : MonoBehaviourPunCallbacks, IPunObservable
 
     public GameObject gameOverPanel;
 
-    public TMP_Text timeText; // Reference to the TextMeshProUGUI component
+    public TMP_Text timeText; 
     public TMP_Text pingText;
-    public TMP_Text loserText; // Reference to the TMP_Text to display the loser
+    public TMP_Text loserText; 
 
     private bool gameIsOver = false;
     private string loserName = "";
 
     void Start()
     {
-        // Initialize remaining time on all clients
         remainingTime = gameTime;
 
-        if (PhotonNetwork.IsMasterClient)
-        {
-            // Start the countdown timer on the master client
+       // if (PhotonNetwork.IsMasterClient)
+        //{
             startTime = (float)PhotonNetwork.Time;
-            photonView.RPC("SetStartTime", RpcTarget.OthersBuffered, startTime);
-        }
+            photonView.RPC("SetStartTime", RpcTarget.AllBuffered, startTime);
+        //}
     }
 
     void Update()
     {
         if (PhotonNetwork.IsConnected)
         {
-            // Get the current ping value from Photon
             int ping = PhotonNetwork.GetPing();
-            // Display the ping value on the TextMeshPro object
             pingText.text = ping.ToString() + "ms";
         }
 
@@ -47,20 +43,15 @@ public class TimeManager : MonoBehaviourPunCallbacks, IPunObservable
             return;
         }
 
-        // Calculate remaining time based on the difference between current time and start time
         remainingTime = gameTime - ((float)PhotonNetwork.Time - startTime);
 
-        // Check for game end condition
         if (remainingTime <= 0f)
         {
             Debug.Log("Time is up " + remainingTime);
-            // Call GameOver RPC
             photonView.RPC("GameOver", RpcTarget.AllBuffered);
-            // Stop the countdown timer
             return;
         }
 
-        // Update the TMP_Text element with the remaining time
         UpdateTimeText();
     }
 
@@ -98,21 +89,19 @@ public class TimeManager : MonoBehaviourPunCallbacks, IPunObservable
             player.GetComponent<PlayerController>().enabled = false;
         }
 
-        // Wait for 2 seconds
         yield return new WaitForSeconds(2f);
 
         // Find the tagged player and determine the loser
         foreach (GameObject player in players)
         {
             PlayerController pc = player.GetComponent<PlayerController>();
-            if (pc.IsTagged()) // Assuming you have a method to check if the player is tagged
+            if (pc.IsTagged()) 
             {
                 loserName = player.GetComponent<PhotonView>().Owner.NickName;
                 break;
             }
         }
 
-        // Synchronize the loser name across all clients
         photonView.RPC("UpdateLoserText", RpcTarget.AllBuffered, loserName);
     }
 
