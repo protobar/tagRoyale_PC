@@ -49,6 +49,9 @@ MonoBehaviour:
   - ReceiveStartTime
   - RequestStartTime
   - SetStartTime
+  - InstantiateDustEffect
+  - InstantiateRespawnEffect
+  - PlayRespawnSound
   DisableAutoOpenWizard: 1
   ShowSettings: 0
   DevRegionSetOnce: 1

@@ -2,20 +2,26 @@ using UnityEngine;
 using UnityEngine.UI;
 using Photon.Pun;
 using System.Collections;
-using TMPro; // Add TextMeshPro namespace
+using TMPro;
 
 public class PlayerController : MonoBehaviourPun
 {
     public float moveSpeed = 5f;
     public float jumpForce = 10f;
-    public float gravity = 20f; // Custom gravity value
-    public Vector3 respawnPosition = new Vector3(0, 10, 0); // Respawn position at y=10
-    public AudioClip footstepSound; // Footstep sound effect
-    public float footstepInterval = 0.5f; // Interval between footsteps
+    public float gravity = 20f;
+    public Vector3 respawnPosition = new Vector3(0, 10, 0);
+    public AudioClip footstepSound;
+    public float footstepInterval = 0.5f;
 
-    public float boostSpeed = 10f; // Speed during boost
-    public float boostDuration = 2f; // Duration of the boost
-    public float boostCooldown = 5f; // Time required to regenerate boost
+    public float boostSpeed = 10f;
+    public float boostDuration = 2f;
+    public float boostCooldown = 5f;
+
+    public float mouseSensitivity = 100f;
+
+    public GameObject respawnEffectPrefab;
+    public GameObject dustEffectPrefab;
+    public AudioClip respawnSound;
 
     private float currentMoveSpeed;
     private bool isBoosting;
@@ -26,28 +32,29 @@ public class PlayerController : MonoBehaviourPun
     private Animator anim;
     private bool isGrounded;
     private bool isTagged;
-    private AudioSource audioSource; // Audio source for footstep sounds
-    private float footstepTimer; // Timer to control footstep sounds
+    private AudioSource audioSource;
+    private float footstepTimer;
 
     public GameObject tagSphere;
-    public Slider boostSlider; // UI Slider for boost status
-    public TMP_Text playerNameText; // TMP text for displaying player name
+    public Slider boostSlider;
+    public TMP_Text playerNameText;
 
     private float touchbackCountdown;
     [SerializeField] private float touchbackDuration;
+
+    private bool cursorLocked = true;
 
     void Start()
     {
         rb = GetComponent<Rigidbody>();
         anim = GetComponent<Animator>();
         audioSource = GetComponent<AudioSource>();
-        rb.useGravity = false; // Disable built-in gravity
+        rb.useGravity = false;
 
         currentMoveSpeed = moveSpeed;
 
         if (!photonView.IsMine)
         {
-            // Disable script and hide boost slider if this is not the local player
             enabled = false;
             if (boostSlider != null)
             {
@@ -60,22 +67,21 @@ public class PlayerController : MonoBehaviourPun
         }
         else
         {
-            // Find the boost slider and player name text in the scene
             boostSlider = FindObjectOfType<Slider>();
-            playerNameText = GameObject.Find("Text_Player1").GetComponent<TMP_Text>(); // Adjust if necessary
+            playerNameText = GameObject.Find("Text_Player1").GetComponent<TMP_Text>();
 
             if (boostSlider != null)
             {
-                // Initialize boost slider
                 boostSlider.maxValue = boostCooldown;
                 boostSlider.value = boostCooldown;
             }
 
             if (playerNameText != null)
             {
-                // Initialize player name text
                 playerNameText.text = PhotonNetwork.NickName;
             }
+
+            LockCursor();
         }
     }
 
@@ -86,50 +92,54 @@ public class PlayerController : MonoBehaviourPun
             return;
         }
 
-        // Handle boost
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            ToggleCursorState();
+        }
+
         if (Input.GetKeyDown(KeyCode.LeftShift) && !isBoosting && boostCooldownTimer <= 0)
         {
             StartCoroutine(Boost());
         }
 
-        // Horizontal and vertical movement
         float moveHorizontal = Input.GetAxis("Horizontal");
         float moveVertical = Input.GetAxis("Vertical");
-        Vector3 movement = new Vector3(moveHorizontal, 0.0f, moveVertical);
+        Vector3 movement = transform.right * moveHorizontal + transform.forward * moveVertical;
         rb.velocity = new Vector3(movement.x * currentMoveSpeed, rb.velocity.y, movement.z * currentMoveSpeed);
 
-        // Apply gravity manually
+        float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
+        float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
+
+        transform.Rotate(Vector3.up * mouseX);
+
         rb.velocity += Vector3.down * gravity * Time.deltaTime;
 
-        // Check if the player falls below y=-10
         if (transform.position.y < -10f)
         {
             RespawnPlayer();
         }
 
-        // Jumping
         if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
         {
             rb.velocity = new Vector3(rb.velocity.x, jumpForce, rb.velocity.z);
             anim.SetTrigger("isJumping");
             isGrounded = false;
 
-            // Broadcast jump event to all clients
             photonView.RPC("Jump", RpcTarget.All);
         }
 
-        // Rotate player based on movement direction
         if (movement.magnitude > 0)
         {
             anim.SetBool("isRunning", true);
-            transform.rotation = Quaternion.LookRotation(movement); // Rotate to face movement direction
-
-            // Play footstep sounds
             footstepTimer -= Time.deltaTime;
             if (footstepTimer <= 0f)
             {
                 PlayFootstepSound();
                 footstepTimer = footstepInterval;
+                if (dustEffectPrefab != null)
+                {
+                    photonView.RPC("InstantiateDustEffect", RpcTarget.All, transform.position);
+                }
             }
         }
         else
@@ -137,19 +147,16 @@ public class PlayerController : MonoBehaviourPun
             anim.SetBool("isRunning", false);
         }
 
-        // Update boost slider value
         if (boostSlider != null)
         {
             boostSlider.value = boostCooldown - boostCooldownTimer;
         }
 
-        // Touch back timers
         if (touchbackCountdown > 0)
         {
             touchbackCountdown -= Time.deltaTime;
         }
 
-        // Handle boost cooldown
         if (boostCooldownTimer > 0)
         {
             boostCooldownTimer -= Time.deltaTime;
@@ -170,15 +177,11 @@ public class PlayerController : MonoBehaviourPun
         {
             if (isTagged && touchbackCountdown <= 0f)
             {
-                // Untag ourself
                 photonView.RPC("OnUnTagged", RpcTarget.AllBuffered);
-
-                // Tag the collided player
                 otherPlayer.photonView.RPC("OnTagged", RpcTarget.AllBuffered);
             }
         }
 
-        // Check if player is grounded
         if (collision.gameObject.CompareTag("Ground"))
         {
             isGrounded = true;
@@ -187,7 +190,6 @@ public class PlayerController : MonoBehaviourPun
 
     void OnCollisionExit(Collision collision)
     {
-        // Check if player is not grounded
         if (collision.gameObject.CompareTag("Ground"))
         {
             isGrounded = false;
@@ -197,23 +199,15 @@ public class PlayerController : MonoBehaviourPun
     [PunRPC]
     public void OnTagged()
     {
-        // Flag as tagged
         isTagged = true;
-
-        // Start the touchback countdown
         touchbackCountdown = touchbackDuration;
-
-        // Turn on the sphere tag Game object
         tagSphere.SetActive(true);
     }
 
     [PunRPC]
     public void OnUnTagged()
     {
-        // Flag as untagged
         isTagged = false;
-
-        // Turn off the sphere tag Game object
         tagSphere.SetActive(false);
     }
 
@@ -224,9 +218,35 @@ public class PlayerController : MonoBehaviourPun
 
     void RespawnPlayer()
     {
-        // Reset position to respawnPosition and fall from a higher position
         transform.position = respawnPosition;
-        rb.velocity = new Vector3(0, -jumpForce, 0); // Fall from a higher position
+        rb.velocity = new Vector3(0, -jumpForce, 0);
+        if (respawnEffectPrefab != null)
+        {
+            photonView.RPC("InstantiateRespawnEffect", RpcTarget.All, respawnPosition);
+        }
+        if (respawnSound != null)
+        {
+            photonView.RPC("PlayRespawnSound", RpcTarget.All);
+        }
+    }
+
+    [PunRPC]
+    void InstantiateRespawnEffect(Vector3 position)
+    {
+        Instantiate(respawnEffectPrefab, position, Quaternion.identity);
+    }
+
+    [PunRPC]
+    void InstantiateDustEffect(Vector3 position)
+    {
+        Instantiate(dustEffectPrefab, position, Quaternion.identity);
+    }
+
+    [PunRPC]
+    void PlayRespawnSound()
+    {
+        Debug.Log("Playing respawn sound");
+        audioSource.PlayOneShot(respawnSound);
     }
 
     private IEnumerator Boost()
@@ -252,5 +272,30 @@ public class PlayerController : MonoBehaviourPun
         {
             audioSource.PlayOneShot(footstepSound);
         }
+    }
+
+    void ToggleCursorState()
+    {
+        cursorLocked = !cursorLocked;
+        if (cursorLocked)
+        {
+            LockCursor();
+        }
+        else
+        {
+            UnlockCursor();
+        }
+    }
+
+    void LockCursor()
+    {
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+    }
+
+    void UnlockCursor()
+    {
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
     }
 }
