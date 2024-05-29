@@ -44,6 +44,8 @@ public class PlayerController : MonoBehaviourPun
 
     private CursorManager cursorManager;
 
+    private Collider triggerCollider;
+
     void Start()
     {
         rb = GetComponent<Rigidbody>();
@@ -54,6 +56,20 @@ public class PlayerController : MonoBehaviourPun
         cursorManager = FindObjectOfType<CursorManager>();
 
         currentMoveSpeed = moveSpeed;
+
+        // Initialize trigger collider
+        triggerCollider = GetComponent<SphereCollider>();
+        triggerCollider.isTrigger = true;
+
+        // Ignore collisions with other players
+        PlayerController[] players = FindObjectsOfType<PlayerController>();
+        foreach (PlayerController player in players)
+        {
+            if (player != this)
+            {
+                Physics.IgnoreCollision(GetComponent<Collider>(), player.GetComponent<Collider>());
+            }
+        }
 
         if (!photonView.IsMine)
         {
@@ -169,9 +185,9 @@ public class PlayerController : MonoBehaviourPun
         anim.SetTrigger("isJumping");
     }
 
-    void OnCollisionEnter(Collision collision)
+    void OnTriggerEnter(Collider other)
     {
-        var otherPlayer = collision.collider.GetComponent<PlayerController>();
+        var otherPlayer = other.GetComponent<PlayerController>();
 
         if (otherPlayer != null)
         {
@@ -181,7 +197,10 @@ public class PlayerController : MonoBehaviourPun
                 otherPlayer.photonView.RPC("OnTagged", RpcTarget.AllBuffered);
             }
         }
+    }
 
+    void OnCollisionEnter(Collision collision)
+    {
         if (collision.gameObject.CompareTag("Ground"))
         {
             isGrounded = true;

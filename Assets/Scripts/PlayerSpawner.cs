@@ -2,13 +2,16 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Photon.Pun;
+
 public class PlayerSpawner : MonoBehaviour
 {
     public GameObject[] playerPrefabs;
     public Transform[] spawnPoints;
+
+    //public GameObject cubePrefab;
+
     private void Start()
     {
-
         if (PhotonNetwork.LocalPlayer.CustomProperties["playerAvatar"] == null)
         {
             PhotonNetwork.LocalPlayer.CustomProperties["playerAvatar"] = 0;
@@ -24,10 +27,16 @@ public class PlayerSpawner : MonoBehaviour
         GameObject playerToSpawn = playerPrefabs[(int)PhotonNetwork.LocalPlayer.CustomProperties["playerAvatar"]];
         var newPlayer = PhotonNetwork.Instantiate(playerToSpawn.name, spawnPoint.position, Quaternion.identity);
 
-        if(PhotonNetwork.IsMasterClient)
+        // Handle tagging for the player
+        if (PhotonNetwork.IsMasterClient)
         {
-            //Start as tagged
+            // Start as tagged
             newPlayer.GetComponent<PlayerController>().photonView.RPC("OnTagged", RpcTarget.AllBuffered);
+
+            // Instantiate the cube from the master client side
+            //GameObject cube = PhotonNetwork.Instantiate(cubePrefab.name, spawnPoint.position + Vector3.right * 2, Quaternion.identity); 
+
+            
         }
         else
         {

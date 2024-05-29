@@ -322,7 +322,10 @@ GameObject:
   - component: {fileID: 3161012258576172063}
   - component: {fileID: -2465853808829685360}
   - component: {fileID: -8931515598631962958}
+  - component: {fileID: 2162486436489016598}
   - component: {fileID: 8845078819215155460}
+  - component: {fileID: 4667030977141916553}
+  - component: {fileID: 1522919362739757539}
   m_Layer: 0
   m_Name: Casual_Bald
   m_TagString: Player
@@ -357,7 +360,7 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1088933041139692073}
   serializedVersion: 4
-  m_Mass: 5
+  m_Mass: 50
   m_Drag: 0
   m_AngularDrag: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
@@ -411,10 +414,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d8d2f41a3325cfe4298771576f2ee99c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 8
+  moveSpeed: 11
   jumpForce: 18
   gravity: 30
-  respawnPosition: {x: 0, y: 1, z: 0}
+  respawnPosition: {x: 0, y: 2, z: 0}
   footstepSound: {fileID: 8300000, guid: 8a51b924ac86eda4796db0ce54e6992d, type: 3}
   footstepInterval: 0.01
   boostSpeed: 15
@@ -441,7 +444,7 @@ AudioSource:
   m_audioClip: {fileID: 8300000, guid: 8a51b924ac86eda4796db0ce54e6992d, type: 3}
   m_PlayOnAwake: 0
   m_Volume: 1
-  m_Pitch: 1.5
+  m_Pitch: 1.7
   Loop: 1
   Mute: 0
   Spatialize: 0
@@ -566,6 +569,8 @@ MonoBehaviour:
   ObservedComponents:
   - {fileID: -2465853808829685360}
   - {fileID: -8931515598631962958}
+  - {fileID: 2162486436489016598}
+  - {fileID: 4667030977141916553}
   sceneViewId: 0
   InstantiationId: 0
   isRuntimeInstantiated: 0
@@ -626,6 +631,22 @@ MonoBehaviour:
     InterpolateOption: 0
     InterpolateMoveTowardsSpeed: 1
     InterpolateLerpSpeed: 0
+--- !u!114 &2162486436489016598
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1088933041139692073}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 64179f3720bbfe947b7724caa67b7c1d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_SynchronizeVelocity: 1
+  m_SynchronizeAngularVelocity: 0
+  m_TeleportEnabled: 0
+  m_TeleportIfDistanceGreaterThan: 3
 --- !u!82 &8845078819215155460
 AudioSource:
   m_ObjectHideFlags: 0
@@ -722,6 +743,44 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &4667030977141916553
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1088933041139692073}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 26635057c5d71094c90bc40d5134b525, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ball: 0
+  photon_View: {fileID: 3161012258576172063}
+  teleportDistance: 0
+  smoothPos: 25
+  smoothRot: 25
+--- !u!135 &1522919362739757539
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1088933041139692073}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Radius: 0.8
+  m_Center: {x: 0, y: 1.5, z: 0}
 --- !u!1 &1431805918601777175
 GameObject:
   m_ObjectHideFlags: 0

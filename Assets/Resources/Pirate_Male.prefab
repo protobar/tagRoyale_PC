@@ -1271,6 +1271,8 @@ GameObject:
   - component: {fileID: 8660770776970672542}
   - component: {fileID: 2391392020718244985}
   - component: {fileID: 265906713484928247}
+  - component: {fileID: 181835357868103036}
+  - component: {fileID: 1466196569078331933}
   m_Layer: 0
   m_Name: Pirate_Male
   m_TagString: Player
@@ -1305,7 +1307,7 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8686745385574064073}
   serializedVersion: 4
-  m_Mass: 5
+  m_Mass: 50
   m_Drag: 0
   m_AngularDrag: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
@@ -1359,10 +1361,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d8d2f41a3325cfe4298771576f2ee99c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 8
+  moveSpeed: 11
   jumpForce: 18
   gravity: 30
-  respawnPosition: {x: 0, y: 1, z: 0}
+  respawnPosition: {x: 0, y: 2, z: 0}
   footstepSound: {fileID: 8300000, guid: 8a51b924ac86eda4796db0ce54e6992d, type: 3}
   footstepInterval: 0.01
   boostSpeed: 15
@@ -1418,6 +1420,7 @@ MonoBehaviour:
   ObservedComponents:
   - {fileID: -4208138572283898572}
   - {fileID: 8660770776970672542}
+  - {fileID: 181835357868103036}
   sceneViewId: 0
   InstantiationId: 0
   isRuntimeInstantiated: 0
@@ -1491,7 +1494,7 @@ AudioSource:
   m_audioClip: {fileID: 8300000, guid: 8a51b924ac86eda4796db0ce54e6992d, type: 3}
   m_PlayOnAwake: 0
   m_Volume: 1
-  m_Pitch: 1.5
+  m_Pitch: 1.7
   Loop: 1
   Mute: 0
   Spatialize: 0
@@ -1670,6 +1673,43 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &181835357868103036
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8686745385574064073}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 64179f3720bbfe947b7724caa67b7c1d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_SynchronizeVelocity: 1
+  m_SynchronizeAngularVelocity: 0
+  m_TeleportEnabled: 0
+  m_TeleportIfDistanceGreaterThan: 3
+--- !u!135 &1466196569078331933
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8686745385574064073}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Radius: 0.8
+  m_Center: {x: 0, y: 1.5, z: 0}
 --- !u!1001 &1093195790076330105
 PrefabInstance:
   m_ObjectHideFlags: 0
