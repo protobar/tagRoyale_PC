@@ -32,11 +32,6 @@ public class PlayerSpawner : MonoBehaviour
         {
             // Start as tagged
             newPlayer.GetComponent<PlayerController>().photonView.RPC("OnTagged", RpcTarget.AllBuffered);
-
-            // Instantiate the cube from the master client side
-            //GameObject cube = PhotonNetwork.Instantiate(cubePrefab.name, spawnPoint.position + Vector3.right * 2, Quaternion.identity); 
-
-            
         }
         else
         {

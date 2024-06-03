@@ -11,23 +11,23 @@ public class TimeManager : MonoBehaviourPunCallbacks, IPunObservable
     private float remainingTime; // Remaining game time
 
     public GameObject gameOverPanel;
-
-    public TMP_Text timeText; 
+    public TMP_Text timeText;
     public TMP_Text pingText;
-    public TMP_Text loserText; 
+    public TMP_Text loserText;
+    public TMP_Text roundText;
+    public TMP_Text countdownText;
 
     private bool gameIsOver = false;
     private string loserName = "";
+    private int roundNumber = 1;
+    private int maxRounds = 3;
 
     void Start()
     {
         remainingTime = gameTime;
-
-       // if (PhotonNetwork.IsMasterClient)
-        //{
-            startTime = (float)PhotonNetwork.Time;
-            photonView.RPC("SetStartTime", RpcTarget.AllBuffered, startTime);
-        //}
+        startTime = (float)PhotonNetwork.Time;
+        photonView.RPC("SetStartTime", RpcTarget.AllBuffered, startTime);
+        UpdateRoundText();
     }
 
     void Update()
@@ -95,7 +95,7 @@ public class TimeManager : MonoBehaviourPunCallbacks, IPunObservable
         foreach (GameObject player in players)
         {
             PlayerController pc = player.GetComponent<PlayerController>();
-            if (pc.IsTagged()) 
+            if (pc.IsTagged())
             {
                 loserName = player.GetComponent<PhotonView>().Owner.NickName;
                 break;
@@ -103,6 +103,30 @@ public class TimeManager : MonoBehaviourPunCallbacks, IPunObservable
         }
 
         photonView.RPC("UpdateLoserText", RpcTarget.AllBuffered, loserName);
+
+        // Display countdown for next level if there are remaining rounds
+        if (roundNumber < maxRounds)
+        {
+            yield return StartCoroutine(CountdownToNextRound());
+        }
+        else
+        {
+            photonView.RPC("DisplayFinalGameOverText", RpcTarget.AllBuffered, loserName);
+        }
+    }
+
+    IEnumerator CountdownToNextRound()
+    {
+        gameOverPanel.SetActive(true);
+        for (int i = 5; i > 0; i--)
+        {
+            countdownText.text = "Next round starts in: " + i;
+            yield return new WaitForSeconds(1f);
+        }
+        roundNumber++;
+        UpdateRoundText();
+        ResetRound();
+        gameIsOver = false;
     }
 
     [PunRPC]
@@ -110,13 +134,43 @@ public class TimeManager : MonoBehaviourPunCallbacks, IPunObservable
     {
         gameOverPanel.SetActive(true);
         loserName = loser;
-        loserText.text = loserName.ToString();
+        loserText.text = "Loser: " + loser;
+    }
+
+    [PunRPC]
+    void DisplayFinalGameOverText(string loser)
+    {
+        gameOverPanel.SetActive(true);
+        loserName = loser;
+        loserText.text = "Loser: " + loser;
+        roundText.text = "Game Over";
+        countdownText.text = "";
     }
 
     [PunRPC]
     void SetStartTime(float masterStartTime)
     {
         startTime = masterStartTime;
+    }
+
+    void UpdateRoundText()
+    {
+        roundText.text = "Round: " + roundNumber;
+    }
+
+    void ResetRound()
+    {
+        gameOverPanel.SetActive(false);
+        remainingTime = gameTime;
+        startTime = (float)PhotonNetwork.Time;
+        photonView.RPC("SetStartTime", RpcTarget.AllBuffered, startTime);
+
+        // Enable PlayerController script on all players
+        GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
+        foreach (GameObject player in players)
+        {
+            player.GetComponent<PlayerController>().enabled = true;
+        }
     }
 
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)

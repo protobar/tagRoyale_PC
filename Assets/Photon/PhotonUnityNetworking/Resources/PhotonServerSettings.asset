@@ -52,6 +52,19 @@ MonoBehaviour:
   - InstantiateDustEffect
   - InstantiateRespawnEffect
   - PlayRespawnSound
+  - SetLoser
+  - EliminatePlayer
+  - TagNewPlayer
+  - DeclareWinner
+  - SendPlayerToLobby
+  - UpdateRoundText
+  - UpdateRemainingPlayersText
+  - StartNextRoundCountdown
+  - HideRoundPanel
+  - RespawnPlayers
+  - ShowRoundPanel
+  - DisplayFinalLoserText
+  - DisplayFinalGameOverText
   DisableAutoOpenWizard: 1
   ShowSettings: 0
   DevRegionSetOnce: 1
