@@ -134,7 +134,7 @@ public class TimeManager : MonoBehaviourPunCallbacks, IPunObservable
     {
         gameOverPanel.SetActive(true);
         loserName = loser;
-        loserText.text = "Loser: " + loser;
+        loserText.text = loser.ToString();
     }
 
     [PunRPC]
@@ -142,7 +142,7 @@ public class TimeManager : MonoBehaviourPunCallbacks, IPunObservable
     {
         gameOverPanel.SetActive(true);
         loserName = loser;
-        loserText.text = "Loser: " + loser;
+        loserText.text = loser.ToString();
         roundText.text = "Game Over";
         countdownText.text = "";
     }

@@ -6,6 +6,8 @@ TagManager:
   tags:
   - Ground
   - TagSphere
+  - FxTemporaire
+  - Bound
   layers:
   - Default
   - TransparentFX

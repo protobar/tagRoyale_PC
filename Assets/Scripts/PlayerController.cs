@@ -197,6 +197,11 @@ public class PlayerController : MonoBehaviourPun
                 otherPlayer.photonView.RPC("OnTagged", RpcTarget.AllBuffered);
             }
         }
+
+        if (other.CompareTag("Bound"))
+        {
+            RespawnPlayer();
+        }
     }
 
     void OnCollisionEnter(Collision collision)
