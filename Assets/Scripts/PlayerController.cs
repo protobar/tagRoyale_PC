@@ -3,6 +3,8 @@ using UnityEngine.UI;
 using Photon.Pun;
 using System.Collections;
 using TMPro;
+using Photon.Voice.Unity;
+using Photon.Voice.PUN;
 
 public class PlayerController : MonoBehaviourPun
 {
@@ -42,6 +44,9 @@ public class PlayerController : MonoBehaviourPun
     private float touchbackCountdown;
     [SerializeField] private float touchbackDuration;
 
+    private Recorder recorder;
+    private Speaker speaker;
+
     private CursorManager cursorManager;
 
     private Collider triggerCollider;
@@ -60,6 +65,25 @@ public class PlayerController : MonoBehaviourPun
         // Initialize trigger collider
         triggerCollider = GetComponent<SphereCollider>();
         triggerCollider.isTrigger = true;
+
+        /*//Voice
+        if (photonView.IsMine)
+        {
+            // Set up Recorder
+            recorder = gameObject.AddComponent<Recorder>();
+            recorder.TransmitEnabled = true;
+            recorder.InterestGroup = 0;
+            recorder.DebugEchoMode = true;
+            recorder.VoiceDetection = true;
+            recorder.VoiceDetectionThreshold = 0.01f;
+            recorder.VoiceDetectionDelayMs = 500;
+            recorder.UserData = photonView.ViewID;
+            recorder.Init(PhotonVoiceNetwork.Instance);
+
+            // Set up Speaker
+            speaker = gameObject.AddComponent<Speaker>();
+            PhotonVoiceNetwork.Instance.PrimaryRecorder = recorder;
+        }*/
 
         // Ignore collisions with other players
         PlayerController[] players = FindObjectsOfType<PlayerController>();

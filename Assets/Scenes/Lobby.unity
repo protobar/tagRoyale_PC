@@ -3848,7 +3848,7 @@ MonoBehaviour:
   createRoomPanel: {fileID: 2430536514867296532}
   browseRoom: {fileID: 8888066753195886000}
   roomName: {fileID: 881646681207261595}
-  maxPlayers: 4
+  maxPlayers: 10
   timeBetweenUpdates: 1.5
   roomItemPrefab: {fileID: 3016235938617704091, guid: 6f9704675030e36418616797a18a5be6, type: 3}
   contentObject: {fileID: 2993824393643700148}
@@ -23122,10 +23122,10 @@ SceneRoots:
   - {fileID: 1875745082}
   - {fileID: 1235877300}
   - {fileID: 717786522}
-  - {fileID: 211402707}
   - {fileID: 1482131365}
   - {fileID: 3956750551519953993}
   - {fileID: 893595264}
   - {fileID: 1718063154}
   - {fileID: 1502965281}
   - {fileID: 1335303471}
+  - {fileID: 211402707}

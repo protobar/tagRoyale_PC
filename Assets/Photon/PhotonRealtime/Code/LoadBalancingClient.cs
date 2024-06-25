@@ -459,14 +459,9 @@ namespace Photon.Realtime
                 {
                     return;
                 }
-
                 ClientState previousState = this.state;
                 this.state = value;
-
-                if (this.StateChanged != null)
-                {
-                    this.StateChanged(previousState, this.state);
-                }
+                if (StateChanged != null) StateChanged(previousState, this.state);
             }
         }
 
@@ -1662,7 +1657,6 @@ namespace Photon.Realtime
             this.enterRoomParamsCache = new EnterRoomParams();
             this.enterRoomParamsCache.Lobby = opJoinRandomRoomParams.TypedLobby;
             this.enterRoomParamsCache.ExpectedUsers = opJoinRandomRoomParams.ExpectedUsers;
-            this.enterRoomParamsCache.Ticket = opJoinRandomRoomParams.Ticket;
 
 
             bool sending = this.LoadBalancingPeer.OpJoinRandomRoom(opJoinRandomRoomParams);
@@ -1685,9 +1679,6 @@ namespace Photon.Realtime
         /// by the very next client, looking for similar rooms.
         ///
         /// There are separate parameters for joining and creating a room.
-        ///
-        /// Tickets: Both parameter types have a Ticket value. It is enough to set the opJoinRandomRoomParams.Ticket.
-        /// The createRoomParams.Ticket will not be used.
         ///
         /// This method can only be called while connected to a Master Server.
         /// This client's State is set to ClientState.Joining immediately.
@@ -1722,10 +1713,6 @@ namespace Photon.Realtime
             this.enterRoomParamsCache = createRoomParams;
             this.enterRoomParamsCache.Lobby = opJoinRandomRoomParams.TypedLobby;
             this.enterRoomParamsCache.ExpectedUsers = opJoinRandomRoomParams.ExpectedUsers;
-            if (opJoinRandomRoomParams.Ticket != null)
-            {
-                this.enterRoomParamsCache.Ticket = opJoinRandomRoomParams.Ticket;
-            }
 
 
             bool sending = this.LoadBalancingPeer.OpJoinRandomOrCreateRoom(opJoinRandomRoomParams, createRoomParams);
@@ -1936,11 +1923,8 @@ namespace Photon.Realtime
         ///
         /// Rejoining room will not send any player properties. Instead client will receive up-to-date ones from server.
         /// If you want to set new player properties, do it once rejoined.
-        ///
-        /// Tickets: If the server requires use of Tickets or if the room was entered with a Ticket initially,
-        /// you will have to provide 
         /// </remarks>
-        public bool OpRejoinRoom(string roomName, object ticket = null)
+        public bool OpRejoinRoom(string roomName)
         {
             if (!this.CheckIfOpCanBeSent(OperationCode.JoinGame, this.Server, "RejoinRoom"))
             {
@@ -1950,11 +1934,10 @@ namespace Photon.Realtime
             bool onGameServer = this.Server == ServerConnection.GameServer;
 
             EnterRoomParams opParams = new EnterRoomParams();
+            this.enterRoomParamsCache = opParams;
             opParams.RoomName = roomName;
             opParams.OnGameServer = onGameServer;
             opParams.JoinMode = JoinMode.RejoinOnly;
-            opParams.Ticket = ticket;
-            this.enterRoomParamsCache = opParams;
 
             bool sending = this.LoadBalancingPeer.OpJoinRoom(opParams);
             if (sending)
@@ -2432,7 +2415,6 @@ namespace Photon.Realtime
                 // the state should be set before OnCreateRoom/OnJoinedRoom is called, which may be due to the event join.
                 // if you need the old behavior, move the following line out of this block (below the block that could call InternalCacheRoomFlags().
                 this.State = ClientState.Joined;
-                this.LocalPlayer.UpdateNickNameOnJoined();
 
 
                 if (this.lastJoinType == JoinType.CreateRoom || (this.lastJoinType == JoinType.JoinOrCreateRoom && this.LocalPlayer.ActorNumber == 1))
@@ -3354,7 +3336,6 @@ namespace Photon.Realtime
                         originatingPlayer.HasRejoined = this.enterRoomParamsCache != null && this.enterRoomParamsCache.JoinMode == JoinMode.RejoinOnly;
 
                         this.State = ClientState.Joined;
-                        this.LocalPlayer.UpdateNickNameOnJoined();
 
                         // joinWithCreateOnDemand can turn an OpJoin into creating the room. Then actorNumber is 1 and callback: OnCreatedRoom()
                         if (this.lastJoinType == JoinType.CreateRoom || (this.lastJoinType == JoinType.JoinOrCreateRoom && this.LocalPlayer.ActorNumber == 1))

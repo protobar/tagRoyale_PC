@@ -16,7 +16,7 @@ MonoBehaviour:
     AppIdRealtime: 81dc2d66-fcd0-40b1-9736-6a375d7adf34
     AppIdFusion: 
     AppIdChat: 
-    AppIdVoice: 
+    AppIdVoice: 8c0357ca-78f3-4f0a-9661-d349ac3701e5
     AppVersion: 
     UseNameServer: 1
     FixedRegion: 
@@ -34,38 +34,24 @@ MonoBehaviour:
   RunInBackground: 1
   StartInOfflineMode: 0
   RpcList:
+  - CantHearYou
+  - ChangeColour
   - ClickRpc
   - DestroyRpc
+  - HeresWhy
   - DestroySpaceship
+  - DisplayFinalGameOverText
   - Fire
-  - Jump
-  - RespawnSpaceship
-  - AssignTag
-  - SetTaggedRPC
-  - OnTagged
-  - OnUnTagged
   - GameOver
-  - UpdateLoserText
-  - ReceiveStartTime
-  - RequestStartTime
-  - SetStartTime
   - InstantiateDustEffect
   - InstantiateRespawnEffect
+  - Jump
+  - OnTagged
+  - OnUnTagged
   - PlayRespawnSound
-  - SetLoser
-  - EliminatePlayer
-  - TagNewPlayer
-  - DeclareWinner
-  - SendPlayerToLobby
-  - UpdateRoundText
-  - UpdateRemainingPlayersText
-  - StartNextRoundCountdown
-  - HideRoundPanel
-  - RespawnPlayers
-  - ShowRoundPanel
-  - DisplayFinalLoserText
-  - DisplayFinalGameOverText
-  - DisplayTagMessage
+  - RespawnSpaceship
+  - SetStartTime
+  - UpdateLoserText
   DisableAutoOpenWizard: 1
-  ShowSettings: 0
+  ShowSettings: 1
   DevRegionSetOnce: 1
