@@ -34,7 +34,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
-  m_AnchoredPosition: {x: -24, y: -197}
+  m_AnchoredPosition: {x: 0, y: -197}
   m_SizeDelta: {x: 1080, y: 1920}
   m_Pivot: {x: 0.5000002, y: 0.000000035390258}
 --- !u!222 &583454528535284636
@@ -65,7 +65,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: a1cf8ac3e32875640beefd6c71e7f595, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 5966e65e0f9c40c49bd82dc34787d527, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -109,7 +109,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 50}
   m_SizeDelta: {x: 250.92337, y: 50}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!222 &3485909284787678835
@@ -309,11 +309,16 @@ MonoBehaviour:
   rightBtn: {fileID: 8687447055922524930}
   playerAvatars: {fileID: 6548609045241605847}
   avatars:
-  - {fileID: 21300000, guid: a1cf8ac3e32875640beefd6c71e7f595, type: 3}
-  - {fileID: 21300000, guid: a9f4d9a5885dbd94687bc274942e29ca, type: 3}
-  - {fileID: 21300000, guid: 075b12311c0b19b40bdd16ee36e16695, type: 3}
-  - {fileID: 21300000, guid: 495561a7e35f67743b0c8128ebe60c78, type: 3}
-  - {fileID: 21300000, guid: 2928116f33ac54e419edd6e5da0b9faa, type: 3}
+  - {fileID: 21300000, guid: 5966e65e0f9c40c49bd82dc34787d527, type: 3}
+  - {fileID: 21300000, guid: 3111aead337fc3e48aac06bd241bf1e3, type: 3}
+  - {fileID: 21300000, guid: 2ffd09c371bc43b40beebc2bfcc7ff0a, type: 3}
+  - {fileID: 21300000, guid: eb8283c879b153148816ae49cb93b2f2, type: 3}
+  - {fileID: 21300000, guid: 8a2ad1bc406d62540b321c81bac5cfa0, type: 3}
+  - {fileID: 21300000, guid: f4c95580b883e8a4a83e3009c37c0223, type: 3}
+  - {fileID: 21300000, guid: 61ea2ea60841d434886c0642296d45f1, type: 3}
+  - {fileID: 21300000, guid: 8fedee3acdd35324592dbb9604888ac5, type: 3}
+  - {fileID: 21300000, guid: 10fd5bd9676e1b147bbb78b91a57e8b9, type: 3}
+  - {fileID: 21300000, guid: ac1a8a702091f1247b9289c6860fa965, type: 3}
 --- !u!1 &5290473353837758097
 GameObject:
   m_ObjectHideFlags: 0
