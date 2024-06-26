@@ -432,8 +432,8 @@ MonoBehaviour:
   tagSphere: {fileID: 5336109495593911117}
   boostSlider: {fileID: 0}
   playerNameText: {fileID: 0}
+  useMouseAndKeyboard: 1
   touchbackDuration: 2
-  joystick: {fileID: 0}
 --- !u!82 &3364543571607176342
 AudioSource:
   m_ObjectHideFlags: 0

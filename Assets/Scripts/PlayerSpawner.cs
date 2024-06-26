@@ -2,24 +2,15 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Photon.Pun;
-using TMPro;
-using UnityEngine.UI;
-public class PlayerSpawner : MonoBehaviourPunCallbacks
+using Photon.Realtime;
+using ExitGames.Client.Photon;
+
+public class PlayerSpawner : MonoBehaviour
 {
     public GameObject[] playerPrefabs;
     public Transform[] spawnPoints;
-    public GameObject jumpButton;
-    public GameObject boostButton;
 
     private void Start()
-    {
-        if (PhotonNetwork.IsConnectedAndReady)
-        {
-            SpawnPlayer();
-        }
-    }
-
-    private void SpawnPlayer()
     {
         if (PhotonNetwork.LocalPlayer.CustomProperties["playerAvatar"] == null)
         {
@@ -36,38 +27,63 @@ public class PlayerSpawner : MonoBehaviourPunCallbacks
         GameObject playerToSpawn = playerPrefabs[(int)PhotonNetwork.LocalPlayer.CustomProperties["playerAvatar"]];
         var newPlayer = PhotonNetwork.Instantiate(playerToSpawn.name, spawnPoint.position, Quaternion.identity);
 
-        // Ensure each player has their own jump and boost buttons
-        if (jumpButton != null && boostButton != null)
-        {
-            // Get the PlayerController script of the spawned player
-            PlayerController playerController = newPlayer.GetComponent<PlayerController>();
-            if (playerController != null)
-            {
-                // Assign jump button reference and setup its onClick event
-                Button jumpButtonComponent = jumpButton.GetComponent<Button>();
-                if (jumpButtonComponent != null)
-                {
-                    jumpButtonComponent.onClick.AddListener(() => { playerController.OnJumpButtonPressed(); });
-                }
-
-                // Assign boost button reference and setup its onClick event
-                Button boostButtonComponent = boostButton.GetComponent<Button>();
-                if (boostButtonComponent != null)
-                {
-                    boostButtonComponent.onClick.AddListener(() => { playerController.OnBoostButtonPressed(); });
-                }
-            }
-        }
-
         // Handle tagging for the player
         if (PhotonNetwork.IsMasterClient)
         {
-            // Start as tagged
-            newPlayer.GetComponent<PlayerController>().photonView.RPC("OnTagged", RpcTarget.AllBuffered);
+            // The master client selects a random player to be tagged
+            StartCoroutine(AssignRandomTag());
         }
-        else
+    }
+
+    private IEnumerator AssignRandomTag()
+    {
+        // Wait for all players to be instantiated
+        yield return new WaitForSeconds(1.0f);
+
+        // Get a list of all players in the room
+        Player[] players = PhotonNetwork.PlayerList;
+
+        // Select a random player
+        int randomIndex = Random.Range(0, players.Length);
+        Player randomPlayer = players[randomIndex];
+
+        // Notify all players who is tagged
+        PhotonNetwork.RaiseEvent(0, randomPlayer.ActorNumber, new RaiseEventOptions { Receivers = ReceiverGroup.All }, SendOptions.SendReliable);
+    }
+
+    [PunRPC]
+    private void TagPlayer(int actorNumber)
+    {
+        // Find the player with the given actor number and tag them
+        foreach (var player in FindObjectsOfType<PlayerController>())
         {
-            newPlayer.GetComponent<PlayerController>().photonView.RPC("OnUnTagged", RpcTarget.AllBuffered);
+            if (player.photonView.Owner.ActorNumber == actorNumber)
+            {
+                player.photonView.RPC("OnTagged", RpcTarget.AllBuffered);
+            }
+            else
+            {
+                player.photonView.RPC("OnUnTagged", RpcTarget.AllBuffered);
+            }
+        }
+    }
+
+    private void OnEnable()
+    {
+        PhotonNetwork.NetworkingClient.EventReceived += OnEvent;
+    }
+
+    private void OnDisable()
+    {
+        PhotonNetwork.NetworkingClient.EventReceived -= OnEvent;
+    }
+
+    private void OnEvent(EventData photonEvent)
+    {
+        if (photonEvent.Code == 0)
+        {
+            int actorNumber = (int)photonEvent.CustomData;
+            TagPlayer(actorNumber);
         }
     }
 }

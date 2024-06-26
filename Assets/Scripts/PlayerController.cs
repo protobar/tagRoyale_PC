@@ -6,7 +6,6 @@ using TMPro;
 using Photon.Voice.Unity;
 using Photon.Voice.PUN;
 
-
 public class PlayerController : MonoBehaviourPun
 {
     public float moveSpeed = 5f;
@@ -41,14 +40,16 @@ public class PlayerController : MonoBehaviourPun
     public Slider boostSlider;
     public TMP_Text playerNameText;
 
+    public bool useMouseAndKeyboard = true; // Toggle to switch between Mouse and Keyboard or Only Keyboard
+    private Vector3 desiredMoveDirection;
+
     private float touchbackCountdown;
     [SerializeField] private float touchbackDuration;
 
-    private CursorManager cursorManager;
-    private Collider triggerCollider;
 
-    // Joystick variables
-    public Joystick joystick;
+    private CursorManager cursorManager;
+
+    private Collider triggerCollider;
 
     void Start()
     {
@@ -108,12 +109,6 @@ public class PlayerController : MonoBehaviourPun
                 cursorManager.LockCursor();
             }
         }
-
-        // Assign joystick reference
-        if (joystick == null)
-        {
-            joystick = GameObject.Find("Fixed Joystick").GetComponent<Joystick>();
-        }
     }
 
     void Update()
@@ -128,43 +123,14 @@ public class PlayerController : MonoBehaviourPun
             StartCoroutine(Boost());
         }
 
-        // Use joystick for movement if on mobile
-        float moveHorizontal = joystick.Horizontal;
-        float moveVertical = joystick.Vertical;
-
-        // Use keyboard for movement if not on mobile
-        if (Mathf.Approximately(moveHorizontal, 0) && Mathf.Approximately(moveVertical, 0))
+        if (useMouseAndKeyboard)
         {
-            moveHorizontal = Input.GetAxis("Horizontal");
-            moveVertical = Input.GetAxis("Vertical");
+            MouseAndKeyboardControls();
         }
-
-        // Adjust movement for isometric view
-        Vector3 movement = new Vector3(moveHorizontal, 0, moveVertical).normalized;
-        Vector3 forward = Camera.main.transform.forward;
-        Vector3 right = Camera.main.transform.right;
-
-        forward.y = 0f;
-        right.y = 0f;
-        forward.Normalize();
-        right.Normalize();
-
-        Vector3 desiredMoveDirection = (forward * moveVertical + right * moveHorizontal).normalized;
-
-        rb.velocity = new Vector3(desiredMoveDirection.x * currentMoveSpeed, rb.velocity.y, desiredMoveDirection.z * currentMoveSpeed);
-
-        // Rotate player to face the direction of movement
-        if (desiredMoveDirection != Vector3.zero)
+        else
         {
-            transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(desiredMoveDirection), Time.deltaTime * 10f);
+            KeyboardOnlyControls();
         }
-
-        /*float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
-        float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
-
-        transform.Rotate(Vector3.up * mouseX);*/
-
-        rb.velocity += Vector3.down * gravity * Time.deltaTime;
 
         if (transform.position.y < -10f)
         {
@@ -180,20 +146,8 @@ public class PlayerController : MonoBehaviourPun
             photonView.RPC("Jump", RpcTarget.All);
         }
 
-        if (desiredMoveDirection.magnitude > 0)
-        {
-            anim.SetBool("isRunning", true);
-            footstepTimer -= Time.deltaTime;
-            if (footstepTimer <= 0f)
-            {
-                PlayFootstepSound();
-                footstepTimer = footstepInterval;
-            }
-        }
-        else
-        {
-            anim.SetBool("isRunning", false);
-        }
+        // Update run animation based on movement
+        UpdateRunAnimation();
 
         if (boostSlider != null)
         {
@@ -211,15 +165,53 @@ public class PlayerController : MonoBehaviourPun
         }
     }
 
-    [PunRPC]
-    void Jump()
+    void UpdateRunAnimation()
     {
-        anim.SetTrigger("isJumping");
+        float moveHorizontal = Input.GetAxis("Horizontal");
+        float moveVertical = Input.GetAxis("Vertical");
+
+        // Calculate movement direction
+        Vector3 movement = new Vector3(moveHorizontal, 0f, moveVertical);
+        desiredMoveDirection = movement.normalized;
+
+        // Update animation
+        if (desiredMoveDirection.magnitude > 0)
+        {
+            anim.SetBool("isRunning", true);
+            footstepTimer -= Time.deltaTime;
+            if (footstepTimer <= 0f)
+            {
+                PlayFootstepSound();
+                footstepTimer = footstepInterval;
+            }
+        }
+        else
+        {
+            anim.SetBool("isRunning", false);
+        }
     }
 
-    public void OnJumpButtonPressed()
+
+
+    public void MouseAndKeyboardControls()
     {
-        if (isGrounded)
+        float moveHorizontal = Input.GetAxis("Horizontal");
+        float moveVertical = Input.GetAxis("Vertical");
+
+        Vector3 movement = transform.right * moveHorizontal + transform.forward * moveVertical;
+        rb.velocity = new Vector3(movement.x * currentMoveSpeed, rb.velocity.y, movement.z * currentMoveSpeed);
+
+        float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
+        transform.Rotate(Vector3.up * mouseX);
+
+        rb.velocity += Vector3.down * gravity * Time.deltaTime;
+
+        if (transform.position.y < -10f)
+        {
+            RespawnPlayer();
+        }
+
+        if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
         {
             rb.velocity = new Vector3(rb.velocity.x, jumpForce, rb.velocity.z);
             anim.SetTrigger("isJumping");
@@ -229,12 +221,63 @@ public class PlayerController : MonoBehaviourPun
         }
     }
 
-    public void OnBoostButtonPressed()
+    public void KeyboardOnlyControls()
     {
-        if (!isBoosting && boostCooldownTimer <= 0)
+        float moveHorizontal = Input.GetAxis("Horizontal");
+        float moveVertical = Input.GetAxis("Vertical");
+
+        Vector3 forward = Camera.main.transform.forward;
+        Vector3 right = Camera.main.transform.right;
+
+        forward.y = 0f;
+        right.y = 0f;
+        forward.Normalize();
+        right.Normalize();
+
+        Vector3 desiredMoveDirection = (forward * moveVertical + right * moveHorizontal).normalized;
+
+        rb.velocity = new Vector3(desiredMoveDirection.x * currentMoveSpeed, rb.velocity.y, desiredMoveDirection.z * currentMoveSpeed);
+
+        if (desiredMoveDirection != Vector3.zero)
         {
-            StartCoroutine(Boost());
+            transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(desiredMoveDirection), Time.deltaTime * 10f);
         }
+
+        rb.velocity += Vector3.down * gravity * Time.deltaTime;
+
+        if (transform.position.y < -10f)
+        {
+            RespawnPlayer();
+        }
+
+        if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
+        {
+            rb.velocity = new Vector3(rb.velocity.x, jumpForce, rb.velocity.z);
+            anim.SetTrigger("isJumping");
+            isGrounded = false;
+
+            photonView.RPC("Jump", RpcTarget.All);
+        }
+
+        if (moveHorizontal != 0 || moveVertical != 0)
+        {
+            anim.SetBool("isRunning", true);
+            footstepTimer -= Time.deltaTime;
+            if (footstepTimer <= 0f)
+            {
+                PlayFootstepSound();
+                footstepTimer = footstepInterval;
+            }
+        }
+        else
+        {
+            anim.SetBool("isRunning", false);
+        }
+    }
+    [PunRPC]
+    void Jump()
+    {
+        anim.SetTrigger("isJumping");
     }
 
     void OnTriggerEnter(Collider other)
@@ -311,6 +354,8 @@ public class PlayerController : MonoBehaviourPun
     {
         Instantiate(respawnEffectPrefab, position, Quaternion.identity);
     }
+
+
 
     [PunRPC]
     void PlayRespawnSound()

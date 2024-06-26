@@ -591,8 +591,8 @@ MonoBehaviour:
   tagSphere: {fileID: 3456823090446065567}
   boostSlider: {fileID: 0}
   playerNameText: {fileID: 0}
+  useMouseAndKeyboard: 1
   touchbackDuration: 2
-  joystick: {fileID: 0}
 --- !u!95 &911343113521554047
 Animator:
   serializedVersion: 5

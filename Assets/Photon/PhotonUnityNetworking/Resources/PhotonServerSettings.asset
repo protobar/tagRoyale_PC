@@ -52,6 +52,8 @@ MonoBehaviour:
   - RespawnSpaceship
   - SetStartTime
   - UpdateLoserText
+  - TagPlayer
+  - SyncControlsState
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

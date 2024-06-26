@@ -211,7 +211,6 @@ MonoBehaviour:
   boostSlider: {fileID: 0}
   playerNameText: {fileID: 0}
   touchbackDuration: 2
-  joystick: {fileID: 0}
 --- !u!114 &2502114661595235871
 MonoBehaviour:
   m_ObjectHideFlags: 0
