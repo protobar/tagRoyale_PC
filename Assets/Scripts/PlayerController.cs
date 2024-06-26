@@ -6,6 +6,7 @@ using TMPro;
 using Photon.Voice.Unity;
 using Photon.Voice.PUN;
 
+
 public class PlayerController : MonoBehaviourPun
 {
     public float moveSpeed = 5f;
@@ -22,7 +23,6 @@ public class PlayerController : MonoBehaviourPun
     public float mouseSensitivity = 100f;
 
     public GameObject respawnEffectPrefab;
-    public GameObject dustEffectPrefab;
     public AudioClip respawnSound;
 
     private float currentMoveSpeed;
@@ -44,12 +44,11 @@ public class PlayerController : MonoBehaviourPun
     private float touchbackCountdown;
     [SerializeField] private float touchbackDuration;
 
-    private Recorder recorder;
-    private Speaker speaker;
-
     private CursorManager cursorManager;
-
     private Collider triggerCollider;
+
+    // Joystick variables
+    public Joystick joystick;
 
     void Start()
     {
@@ -65,25 +64,6 @@ public class PlayerController : MonoBehaviourPun
         // Initialize trigger collider
         triggerCollider = GetComponent<SphereCollider>();
         triggerCollider.isTrigger = true;
-
-        /*//Voice
-        if (photonView.IsMine)
-        {
-            // Set up Recorder
-            recorder = gameObject.AddComponent<Recorder>();
-            recorder.TransmitEnabled = true;
-            recorder.InterestGroup = 0;
-            recorder.DebugEchoMode = true;
-            recorder.VoiceDetection = true;
-            recorder.VoiceDetectionThreshold = 0.01f;
-            recorder.VoiceDetectionDelayMs = 500;
-            recorder.UserData = photonView.ViewID;
-            recorder.Init(PhotonVoiceNetwork.Instance);
-
-            // Set up Speaker
-            speaker = gameObject.AddComponent<Speaker>();
-            PhotonVoiceNetwork.Instance.PrimaryRecorder = recorder;
-        }*/
 
         // Ignore collisions with other players
         PlayerController[] players = FindObjectsOfType<PlayerController>();
@@ -128,6 +108,12 @@ public class PlayerController : MonoBehaviourPun
                 cursorManager.LockCursor();
             }
         }
+
+        // Assign joystick reference
+        if (joystick == null)
+        {
+            joystick = GameObject.Find("Fixed Joystick").GetComponent<Joystick>();
+        }
     }
 
     void Update()
@@ -142,15 +128,41 @@ public class PlayerController : MonoBehaviourPun
             StartCoroutine(Boost());
         }
 
-        float moveHorizontal = Input.GetAxis("Horizontal");
-        float moveVertical = Input.GetAxis("Vertical");
-        Vector3 movement = transform.right * moveHorizontal + transform.forward * moveVertical;
-        rb.velocity = new Vector3(movement.x * currentMoveSpeed, rb.velocity.y, movement.z * currentMoveSpeed);
+        // Use joystick for movement if on mobile
+        float moveHorizontal = joystick.Horizontal;
+        float moveVertical = joystick.Vertical;
 
-        float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
+        // Use keyboard for movement if not on mobile
+        if (Mathf.Approximately(moveHorizontal, 0) && Mathf.Approximately(moveVertical, 0))
+        {
+            moveHorizontal = Input.GetAxis("Horizontal");
+            moveVertical = Input.GetAxis("Vertical");
+        }
+
+        // Adjust movement for isometric view
+        Vector3 movement = new Vector3(moveHorizontal, 0, moveVertical).normalized;
+        Vector3 forward = Camera.main.transform.forward;
+        Vector3 right = Camera.main.transform.right;
+
+        forward.y = 0f;
+        right.y = 0f;
+        forward.Normalize();
+        right.Normalize();
+
+        Vector3 desiredMoveDirection = (forward * moveVertical + right * moveHorizontal).normalized;
+
+        rb.velocity = new Vector3(desiredMoveDirection.x * currentMoveSpeed, rb.velocity.y, desiredMoveDirection.z * currentMoveSpeed);
+
+        // Rotate player to face the direction of movement
+        if (desiredMoveDirection != Vector3.zero)
+        {
+            transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(desiredMoveDirection), Time.deltaTime * 10f);
+        }
+
+        /*float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
         float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
 
-        transform.Rotate(Vector3.up * mouseX);
+        transform.Rotate(Vector3.up * mouseX);*/
 
         rb.velocity += Vector3.down * gravity * Time.deltaTime;
 
@@ -168,7 +180,7 @@ public class PlayerController : MonoBehaviourPun
             photonView.RPC("Jump", RpcTarget.All);
         }
 
-        if (movement.magnitude > 0)
+        if (desiredMoveDirection.magnitude > 0)
         {
             anim.SetBool("isRunning", true);
             footstepTimer -= Time.deltaTime;
@@ -176,10 +188,6 @@ public class PlayerController : MonoBehaviourPun
             {
                 PlayFootstepSound();
                 footstepTimer = footstepInterval;
-                if (dustEffectPrefab != null)
-                {
-                    photonView.RPC("InstantiateDustEffect", RpcTarget.All, transform.position);
-                }
             }
         }
         else
@@ -207,6 +215,26 @@ public class PlayerController : MonoBehaviourPun
     void Jump()
     {
         anim.SetTrigger("isJumping");
+    }
+
+    public void OnJumpButtonPressed()
+    {
+        if (isGrounded)
+        {
+            rb.velocity = new Vector3(rb.velocity.x, jumpForce, rb.velocity.z);
+            anim.SetTrigger("isJumping");
+            isGrounded = false;
+
+            photonView.RPC("Jump", RpcTarget.All);
+        }
+    }
+
+    public void OnBoostButtonPressed()
+    {
+        if (!isBoosting && boostCooldownTimer <= 0)
+        {
+            StartCoroutine(Boost());
+        }
     }
 
     void OnTriggerEnter(Collider other)
@@ -282,12 +310,6 @@ public class PlayerController : MonoBehaviourPun
     void InstantiateRespawnEffect(Vector3 position)
     {
         Instantiate(respawnEffectPrefab, position, Quaternion.identity);
-    }
-
-    [PunRPC]
-    void InstantiateDustEffect(Vector3 position)
-    {
-        Instantiate(dustEffectPrefab, position, Quaternion.identity);
     }
 
     [PunRPC]

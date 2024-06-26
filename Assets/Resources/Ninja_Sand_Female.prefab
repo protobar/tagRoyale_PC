@@ -206,12 +206,12 @@ MonoBehaviour:
   boostCooldown: 5
   mouseSensitivity: 100
   respawnEffectPrefab: {fileID: 852691746855508977, guid: acc9d60ab72acee429820f34c07785cb, type: 3}
-  dustEffectPrefab: {fileID: 807568937328831918, guid: e8e3483e070fc8d49afbd67d6b512b10, type: 3}
   respawnSound: {fileID: 8300000, guid: 089cd50b54feb5d4c870be43adf4be30, type: 3}
   tagSphere: {fileID: 5600529905551165536}
   boostSlider: {fileID: 0}
   playerNameText: {fileID: 0}
   touchbackDuration: 2
+  joystick: {fileID: 0}
 --- !u!114 &2502114661595235871
 MonoBehaviour:
   m_ObjectHideFlags: 0
